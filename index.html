@@ -1,0 +1,24 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Plottable Angular Directive</title>
+  <link rel="stylesheet" href="./bower_components/plottable/plottable.css">
+  <script src="./bower_components/d3/d3.js"></script>
+  <script src="./bower_components/plottable/plottable.js"></script>
+  <script src="./bower_components/regression-js/src/regression.js"></script>
+  
+</head>
+<body ng-app="myApp">
+
+  <div ng-controller="MainCtrl">
+    <button ng-click="shuffle()">Shuffle the Data</button>
+
+    <plottable-scatter data="data"></plottable-scatter>  
+
+  </div>
+  
+
+  <script src="./bower_components/angular/angular.js"></script>
+  <script src="ntg-plottable.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "plottable_directive",
+  "version": "0.0.0",
+  "authors": [
+    "Sanborn <sanbornh@rogers.com>"
+  ],
+  "description": "Angular directive wrapper for Plottable.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "regression-js": "~1.2.0",
+    "plottable": "~0.39.0",
+    "angular": "~1.3.7"
+  }
+}
