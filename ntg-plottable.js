@@ -1,6 +1,7 @@
 app = angular.module('myApp', []);
 
 app.controller('MainCtrl', function ($scope) {
+  var counter = 1;
 
   $scope.data = (function makeData() {
     var data = [];
@@ -10,6 +11,8 @@ app.controller('MainCtrl', function ($scope) {
 
       point.x = Math.floor(Math.random() * 50);
       point.y = Math.floor(Math.random() * 100);
+      // point.x = counter++;
+      // point.y = counter++;
 
       data.push(point);
     }
@@ -35,11 +38,23 @@ app.controller('MainCtrl', function ($scope) {
       console.log($scope.data);
     }())  
   }
+
+  $scope.increase = function () {
+    $scope.data[0].x++;
+    $scope.data[0].y++;
+
+    console.log($scope.data[0]);
+  }
+
+  $scope.decrease = function () {
+    $scope.data[0].x--;
+    $scope.data[0].y--;
+  }
 });
 
 app.directive('plottableScatter', function (){
 
- function getXData(d) {
+  function getXData(d) {
     return d.x;
   }
 
@@ -47,7 +62,53 @@ app.directive('plottableScatter', function (){
     return d.y;
   }
 
-  function makeChart(data, target) {
+  /*
+   * Takes an array of points as objects and returns an
+   * array of points as arrays.
+   */
+  function convertPointObjectsToArrays(data) {
+    var pointArrays = []
+
+    for (i = 0; i < data.length; i++) {
+      var pointObject = data[i];
+      var pointArray = new Array(pointObject['x'], pointObject['y']);
+
+      pointArrays.push(pointArray);
+    }
+
+    return pointArrays;
+  }
+
+  /*
+   * Takes an array of points as arrays and returns an array
+   * of points as objects.
+   */
+  function convertPointArraysToObjects(data) {
+    var pointObjects = [];
+
+    for(i = 0; i < data.length; i++) {
+      var point = {};
+
+      point.x = data[i][0];
+      point.y = data[i][1];
+
+      pointObjects.push(point);
+    }
+
+    return pointObjects;
+  }
+
+  /*
+   * Rename regression library to avoid name collisions
+   */
+  _regression = regression;
+
+  function getRegressionData(regressionType, data) {
+    var arrayedRegressionData = _regression(regressionType, convertPointObjectsToArrays(data)).points;
+    return convertPointArraysToObjects(arrayedRegressionData);  
+  }
+
+  function makeChart(data, chartContainer) {
     var xScale = new Plottable.Scale.Linear();
     var yScale = new Plottable.Scale.Linear();
 
@@ -65,30 +126,65 @@ app.directive('plottableScatter', function (){
         [null, xAxis]
       ]);
 
-    chart.renderTo(target);
-    return plot;
+    chart.renderTo(chartContainer);
+    return {
+      chart: chart,
+      xScale: xScale,
+      yScale: yScale,
+      xAxis: xAxis,
+      yAxis: yAxis
+    }
+  }
+
+  function makeRegressionLine(regressionType, originalData, xAxis, yAxis, xScale, yScale, target) {
+    var regressionData = getRegressionData(regressionType, originalData);
+    var plot = new Plottable.Plot.Line(xScale, yScale);
+
+    plot.addDataset(regressionData);
+
+    plot.project('x', getXData, xScale);
+    plot.project('y', getYData, yScale);
+
+    var regressionChart = new Plottable.Component.Table([
+        [yAxis, plot],
+        [null, xAxis]
+      ])
+
+    regressionChart.renderTo(target);
+    return regressionChart;
   }
 
   return {
     restrict: 'E',
     scope: {
-      data: '='
+      data: '=',
+      regression: '@'
     },
     replace: true,
     template: '<svg height="480" width="640"/>',
     link: function postLink(scope, elem, attrs) {
-      var chartContainer = elem[0];
+      var chartContainer = elem[0],
+          regressionType = scope.regression;
+          regression;
 
-
-      var plot = makeChart(scope.data, chartContainer);
-
-      scope.$watch('data', function (newVal, oldVal) {
-        
-        if (newVal === oldVal) {
+      var chartAttrs = makeChart(scope.data, chartContainer);
+      
+      if (regressionType) {
+        regression = makeRegressionLine(regressionType, scope.data, chartAttrs.xAxis, chartAttrs.yAxis, chartAttrs.xScale, chartAttrs.yScale, chartContainer);  
+      }
+      
+      scope.$watch('data', function (newVal, oldVal) {      
+        if (newVal === oldVal) { // Block against initial firing on registration
           return
         } else {
-          plot.remove();  
-          makeChart(scope.data, chartContainer); 
+          chartAttrs.chart.remove();  
+          chartAttrs = makeChart(scope.data, chartContainer); 
+
+          if (scope.regression) {
+            regression.remove();
+            regression = makeRegressionLine(regressionType, scope.data, chartAttrs.xAxis, chartAttrs.yAxis, chartAttrs.xScale, chartAttrs.yScale, chartContainer);  
+          }
+
         }
       })
     }
