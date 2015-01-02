@@ -47,8 +47,14 @@ Specify which property of each point object will be used as the X values and whi
 `regression="linear"`
 Optional
 
-You may optionally add a regression line to the chart by specifying which type of regression you want displayed. Currently only supporting linear regression.
+Add a regression line to the chart by specifying which type of regression to display. Currently only supporting linear regression.
 
+####Dimensions
+
+`height="500"` and `width="500"`
+Optional
+
+Set the height and width of the chart. `height` defaults to 480 and `width` defaults to 640.
 
 
 

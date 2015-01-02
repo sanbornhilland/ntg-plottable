@@ -144,7 +144,6 @@ app.directive('plottableScatter', function (){
     var plot = new Plottable.Plot.Line(chartAttrs.xScale, chartAttrs.yScale);
 
     plot.addDataset(regressionData);
-
     plot.project('x', dataAccessor(scope.axisX), chartAttrs.xScale);
     plot.project('y', dataAccessor(scope.axisY), chartAttrs.yScale);
 
@@ -157,6 +156,13 @@ app.directive('plottableScatter', function (){
     return regressionChart;
   }
 
+  function generateTemplate(tElement, tAttrs) {
+   var height = tAttrs.height || 480;
+   var width  = tAttrs.width  || 640;
+   
+   return '<svg height="' + height + '" width="' + width + '"/>'; 
+  }
+
   return {
     restrict: 'E',
     scope: {
@@ -166,7 +172,7 @@ app.directive('plottableScatter', function (){
       axisY: '@'
     },
     replace: true,
-    template: '<svg height="480" width="640"/>',
+    template: generateTemplate,
     link: function postLink(scope, elem, attrs) {
       var chartContainer = elem[0],
           regressionType = scope.regression;
