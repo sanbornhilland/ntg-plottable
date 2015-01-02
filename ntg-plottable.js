@@ -106,8 +106,8 @@ app.directive('plottableScatter', function (){
    */
   _regression = regression;
 
-  function getRegressionData(regressionType, data, scope) {
-    var arrayedRegressionData = _regression(regressionType, convertPointObjectsToArrays(data, scope.axisX, scope.axisY)).points;
+  function getRegressionData(regressionType, scope) {
+    var arrayedRegressionData = _regression(regressionType, convertPointObjectsToArrays(scope.data, scope.axisX, scope.axisY)).points;
     return convertPointArraysToObjects(arrayedRegressionData, scope.axisX, scope.axisY);  
   }
 
@@ -131,30 +131,31 @@ app.directive('plottableScatter', function (){
 
     chart.renderTo(chartContainer);
 
-    return {
-      chart: chart,
-      xScale: xScale,
-      yScale: yScale,
-      xAxis: xAxis,
-      yAxis: yAxis
+    /*
+     * Create a regression function to draw a regression line for the current chart
+     * which will be returned and called later if a regression was specified
+     */
+    function regressionFunction(regressionType) {
+      var regressionData = getRegressionData(regressionType, scope);
+      var plot = new Plottable.Plot.Line(xScale, yScale);
+
+      plot.addDataset(regressionData);
+      plot.project('x', dataAccessor(scope.axisX), xScale);
+      plot.project('y', dataAccessor(scope.axisY), yScale);
+
+      var regressionChart = new Plottable.Component.Table([
+          [yAxis, plot],
+          [null, xAxis]
+        ])
+
+      regressionChart.renderTo(chartContainer);
+      return regressionChart;
     }
-  }
 
-  function makeRegressionLine(regressionType, scope, chartAttrs, target) {
-    var regressionData = getRegressionData(regressionType, scope.data, scope);
-    var plot = new Plottable.Plot.Line(chartAttrs.xScale, chartAttrs.yScale);
-
-    plot.addDataset(regressionData);
-    plot.project('x', dataAccessor(scope.axisX), chartAttrs.xScale);
-    plot.project('y', dataAccessor(scope.axisY), chartAttrs.yScale);
-
-    var regressionChart = new Plottable.Component.Table([
-        [chartAttrs.yAxis, plot],
-        [null, chartAttrs.xAxis]
-      ])
-
-    regressionChart.renderTo(target);
-    return regressionChart;
+    return {
+      renderedChart: chart,
+      drawRegression: regressionFunction
+    }
   }
 
   function generateTemplate(tElement, tAttrs) {
@@ -176,26 +177,23 @@ app.directive('plottableScatter', function (){
     template: generateTemplate,
     link: function postLink(scope, elem, attrs) {
       var chartContainer = elem[0],
-          regressionType = scope.regression;
+          regressionType = scope.regression,
+          chart,
           regression;
 
-      var chartAttrs = makeChart(scope, chartContainer);
-      console.log(chartAttrs);
-      
-      if (regressionType) {
-        regression = makeRegressionLine(regressionType, scope, chartAttrs, chartContainer);  
-      }
+      chart = makeChart(scope, chartContainer);
+      regression = regressionType && chart.drawRegression(regressionType);  
       
       scope.$watch('data', function (newVal, oldVal) {      
         if (newVal === oldVal) { // Block against initial firing on registration
           return
         } else {
-          chartAttrs.chart.remove();  
-          chartAttrs = makeChart(scope, chartContainer); 
+          chart.renderedChart.remove();  
+          chart = makeChart(scope, chartContainer); 
 
           if (scope.regression) {
             regression.remove();
-            regression = makeRegressionLine(regressionType, scope, chartAttrs, chartContainer);  
+            regression = chart.drawRegression(regressionType);  
           }
         }
       }, true)
