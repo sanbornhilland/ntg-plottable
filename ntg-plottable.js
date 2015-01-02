@@ -121,7 +121,7 @@ app.directive('plottableScatter', function (){
     return convertPointArraysToObjects(arrayedRegressionData, scope.axisX, scope.axisY);  
   }
 
-  function makeChart(data, chartContainer, scope) {
+  function makeChart(scope, chartContainer) {
     var xScale = new Plottable.Scale.Linear();
     var yScale = new Plottable.Scale.Linear();
 
@@ -130,7 +130,7 @@ app.directive('plottableScatter', function (){
 
     var plot = new Plottable.Plot.Scatter(xScale, yScale);
 
-    plot.addDataset(data);
+    plot.addDataset(scope.data);
     plot.project('x', getXData(scope.axisX), xScale);
     plot.project('y', getYData(scope.axisY), yScale);
 
@@ -182,7 +182,7 @@ app.directive('plottableScatter', function (){
           regressionType = scope.regression;
           regression;
 
-      var chartAttrs = makeChart(scope.data, chartContainer, scope);
+      var chartAttrs = makeChart(scope, chartContainer);
       
       if (regressionType) {
         regression = makeRegressionLine(regressionType, scope, chartAttrs, chartContainer);  
@@ -193,7 +193,7 @@ app.directive('plottableScatter', function (){
           return
         } else {
           chartAttrs.chart.remove();  
-          chartAttrs = makeChart(scope.data, chartContainer, scope); 
+          chartAttrs = makeChart(scope, chartContainer); 
 
           if (scope.regression) {
             regression.remove();
