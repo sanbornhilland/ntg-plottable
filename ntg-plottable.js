@@ -56,25 +56,15 @@ app.controller('MainCtrl', function ($scope) {
 
 app.directive('plottableScatter', function (){
 
-  // function getXData(d) {
-  //   return d.x;
-  // }
-
-  // function getYData(d) {
-  //   return d.y;
-  // }
-
-  function getXData(property) {
+  /*
+   * Return an accessor for a given property on some data point
+   */
+  function dataAccessor(property) {
     return function (d) {
-      return d[property]
+      return d[property];
     }
   }
 
-  function getYData(property) {
-    return function (d) {
-      return d[property]
-    }
-  }
   /*
    * Takes an array of points as objects and returns an
    * array of points as arrays.
@@ -131,8 +121,8 @@ app.directive('plottableScatter', function (){
     var plot = new Plottable.Plot.Scatter(xScale, yScale);
 
     plot.addDataset(scope.data);
-    plot.project('x', getXData(scope.axisX), xScale);
-    plot.project('y', getYData(scope.axisY), yScale);
+    plot.project('x', dataAccessor(scope.axisX), xScale);
+    plot.project('y', dataAccessor(scope.axisY), yScale);
 
     var chart = new Plottable.Component.Table([
         [yAxis, plot],
@@ -155,8 +145,8 @@ app.directive('plottableScatter', function (){
 
     plot.addDataset(regressionData);
 
-    plot.project('x', getXData(scope.axisX), chartAttrs.xScale);
-    plot.project('y', getYData(scope.axisY), chartAttrs.yScale);
+    plot.project('x', dataAccessor(scope.axisX), chartAttrs.xScale);
+    plot.project('y', dataAccessor(scope.axisY), chartAttrs.yScale);
 
     var regressionChart = new Plottable.Component.Table([
         [chartAttrs.yAxis, plot],
