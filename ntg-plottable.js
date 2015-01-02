@@ -149,18 +149,18 @@ app.directive('plottableScatter', function (){
     }
   }
 
-  function makeRegressionLine(regressionType, originalData, xAxis, yAxis, xScale, yScale, target, scope) {
-    var regressionData = getRegressionData(regressionType, originalData, scope);
-    var plot = new Plottable.Plot.Line(xScale, yScale);
+  function makeRegressionLine(regressionType, scope, chartAttrs, target) {
+    var regressionData = getRegressionData(regressionType, scope.data, scope);
+    var plot = new Plottable.Plot.Line(chartAttrs.xScale, chartAttrs.yScale);
 
     plot.addDataset(regressionData);
 
-    plot.project('x', getXData(scope.axisX), xScale);
-    plot.project('y', getYData(scope.axisY), yScale);
+    plot.project('x', getXData(scope.axisX), chartAttrs.xScale);
+    plot.project('y', getYData(scope.axisY), chartAttrs.yScale);
 
     var regressionChart = new Plottable.Component.Table([
-        [yAxis, plot],
-        [null, xAxis]
+        [chartAttrs.yAxis, plot],
+        [null, chartAttrs.xAxis]
       ])
 
     regressionChart.renderTo(target);
@@ -185,7 +185,7 @@ app.directive('plottableScatter', function (){
       var chartAttrs = makeChart(scope.data, chartContainer, scope);
       
       if (regressionType) {
-        regression = makeRegressionLine(regressionType, scope.data, chartAttrs.xAxis, chartAttrs.yAxis, chartAttrs.xScale, chartAttrs.yScale, chartContainer, scope);  
+        regression = makeRegressionLine(regressionType, scope, chartAttrs, chartContainer);  
       }
       
       scope.$watch('data', function (newVal, oldVal) {      
@@ -197,7 +197,7 @@ app.directive('plottableScatter', function (){
 
           if (scope.regression) {
             regression.remove();
-            regression = makeRegressionLine(regressionType, scope.data, chartAttrs.xAxis, chartAttrs.yAxis, chartAttrs.xScale, chartAttrs.yScale, chartContainer, scope);  
+            regression = makeRegressionLine(regressionType, scope, chartAttrs, chartContainer);  
           }
         }
       }, true)
