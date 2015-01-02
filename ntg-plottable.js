@@ -130,6 +130,7 @@ app.directive('plottableScatter', function (){
       ]);
 
     chart.renderTo(chartContainer);
+
     return {
       chart: chart,
       xScale: xScale,
@@ -179,6 +180,7 @@ app.directive('plottableScatter', function (){
           regression;
 
       var chartAttrs = makeChart(scope, chartContainer);
+      console.log(chartAttrs);
       
       if (regressionType) {
         regression = makeRegressionLine(regressionType, scope, chartAttrs, chartContainer);  

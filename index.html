@@ -12,8 +12,10 @@
 
   <div ng-controller="MainCtrl">
     <button ng-click="shuffle()">Shuffle the Data</button>
+    <button ng-click="increase()">INCREASE</button>
+    <button ng-click="decrease()">DECREASE</button>
 
-    <plottable-scatter data="data"></plottable-scatter>  
+    <plottable-scatter data="data" regression="linear" axis-x="purple" axis-y="blue" ></plottable-scatter>  
 
   </div>
   
