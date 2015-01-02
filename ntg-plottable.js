@@ -9,8 +9,8 @@ app.controller('MainCtrl', function ($scope) {
     for(i = 1; i <= 100; i++) {
       var point = {};
 
-      point.x = Math.floor(Math.random() * 50);
-      point.y = Math.floor(Math.random() * 100);
+      point.purple = Math.floor(Math.random() * 50);
+      point.blue = Math.floor(Math.random() * 100);
       // point.x = counter++;
       // point.y = counter++;
 
@@ -28,8 +28,8 @@ app.controller('MainCtrl', function ($scope) {
       for(i = 1; i <= 100; i++) {
         var point = {};
 
-        point.x = Math.floor(Math.random() * 50);
-        point.y = Math.floor(Math.random() * 100);
+        point.purple = Math.floor(Math.random() * 50);
+      point.blue = Math.floor(Math.random() * 100);
 
         data.push(point);
       }
@@ -56,24 +56,35 @@ app.controller('MainCtrl', function ($scope) {
 
 app.directive('plottableScatter', function (){
 
-  function getXData(d) {
-    return d.x;
+  // function getXData(d) {
+  //   return d.x;
+  // }
+
+  // function getYData(d) {
+  //   return d.y;
+  // }
+
+  function getXData(property) {
+    return function (d) {
+      return d[property]
+    }
   }
 
-  function getYData(d) {
-    return d.y;
+  function getYData(property) {
+    return function (d) {
+      return d[property]
+    }
   }
-
   /*
    * Takes an array of points as objects and returns an
    * array of points as arrays.
    */
-  function convertPointObjectsToArrays(data) {
+  function convertPointObjectsToArrays(data, x, y) {
     var pointArrays = []
 
     for (i = 0; i < data.length; i++) {
       var pointObject = data[i];
-      var pointArray = new Array(pointObject['x'], pointObject['y']);
+      var pointArray = new Array(pointObject[x], pointObject[y]);
 
       pointArrays.push(pointArray);
     }
@@ -85,14 +96,14 @@ app.directive('plottableScatter', function (){
    * Takes an array of points as arrays and returns an array
    * of points as objects.
    */
-  function convertPointArraysToObjects(data) {
+  function convertPointArraysToObjects(data, x, y) {
     var pointObjects = [];
 
     for(i = 0; i < data.length; i++) {
       var point = {};
 
-      point.x = data[i][0];
-      point.y = data[i][1];
+      point[x] = data[i][0];
+      point[y] = data[i][1];
 
       pointObjects.push(point);
     }
@@ -105,12 +116,12 @@ app.directive('plottableScatter', function (){
    */
   _regression = regression;
 
-  function getRegressionData(regressionType, data) {
-    var arrayedRegressionData = _regression(regressionType, convertPointObjectsToArrays(data)).points;
-    return convertPointArraysToObjects(arrayedRegressionData);  
+  function getRegressionData(regressionType, data, scope) {
+    var arrayedRegressionData = _regression(regressionType, convertPointObjectsToArrays(data, scope.axisX, scope.axisY)).points;
+    return convertPointArraysToObjects(arrayedRegressionData, scope.axisX, scope.axisY);  
   }
 
-  function makeChart(data, chartContainer) {
+  function makeChart(data, chartContainer, scope) {
     var xScale = new Plottable.Scale.Linear();
     var yScale = new Plottable.Scale.Linear();
 
@@ -120,8 +131,8 @@ app.directive('plottableScatter', function (){
     var plot = new Plottable.Plot.Scatter(xScale, yScale);
 
     plot.addDataset(data);
-    plot.project('x', getXData, xScale);
-    plot.project('y', getYData, yScale);
+    plot.project('x', getXData(scope.axisX), xScale);
+    plot.project('y', getYData(scope.axisY), yScale);
 
     var chart = new Plottable.Component.Table([
         [yAxis, plot],
@@ -138,14 +149,14 @@ app.directive('plottableScatter', function (){
     }
   }
 
-  function makeRegressionLine(regressionType, originalData, xAxis, yAxis, xScale, yScale, target) {
-    var regressionData = getRegressionData(regressionType, originalData);
+  function makeRegressionLine(regressionType, originalData, xAxis, yAxis, xScale, yScale, target, scope) {
+    var regressionData = getRegressionData(regressionType, originalData, scope);
     var plot = new Plottable.Plot.Line(xScale, yScale);
 
     plot.addDataset(regressionData);
 
-    plot.project('x', getXData, xScale);
-    plot.project('y', getYData, yScale);
+    plot.project('x', getXData(scope.axisX), xScale);
+    plot.project('y', getYData(scope.axisY), yScale);
 
     var regressionChart = new Plottable.Component.Table([
         [yAxis, plot],
@@ -160,7 +171,9 @@ app.directive('plottableScatter', function (){
     restrict: 'E',
     scope: {
       data: '=',
-      regression: '@'
+      regression: '@',
+      axisX: '@',
+      axisY: '@'
     },
     replace: true,
     template: '<svg height="480" width="640"/>',
@@ -169,10 +182,10 @@ app.directive('plottableScatter', function (){
           regressionType = scope.regression;
           regression;
 
-      var chartAttrs = makeChart(scope.data, chartContainer);
+      var chartAttrs = makeChart(scope.data, chartContainer, scope);
       
       if (regressionType) {
-        regression = makeRegressionLine(regressionType, scope.data, chartAttrs.xAxis, chartAttrs.yAxis, chartAttrs.xScale, chartAttrs.yScale, chartContainer);  
+        regression = makeRegressionLine(regressionType, scope.data, chartAttrs.xAxis, chartAttrs.yAxis, chartAttrs.xScale, chartAttrs.yScale, chartContainer, scope);  
       }
       
       scope.$watch('data', function (newVal, oldVal) {      
@@ -180,12 +193,11 @@ app.directive('plottableScatter', function (){
           return
         } else {
           chartAttrs.chart.remove();  
-          chartAttrs = makeChart(scope.data, chartContainer); 
+          chartAttrs = makeChart(scope.data, chartContainer, scope); 
 
           if (scope.regression) {
-            console.log('Regressing!')
             regression.remove();
-            regression = makeRegressionLine(regressionType, scope.data, chartAttrs.xAxis, chartAttrs.yAxis, chartAttrs.xScale, chartAttrs.yScale, chartContainer);  
+            regression = makeRegressionLine(regressionType, scope.data, chartAttrs.xAxis, chartAttrs.yAxis, chartAttrs.xScale, chartAttrs.yScale, chartContainer, scope);  
           }
         }
       }, true)
