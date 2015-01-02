@@ -40,15 +40,17 @@ app.controller('MainCtrl', function ($scope) {
   }
 
   $scope.increase = function () {
-    $scope.data[0].x++;
-    $scope.data[0].y++;
-
-    console.log($scope.data[0]);
+    for(var i = 0; i < 50; i++) {
+      $scope.data[i].x++;
+      $scope.data[i].y++;
+    }
   }
 
   $scope.decrease = function () {
-    $scope.data[0].x--;
-    $scope.data[0].y--;
+   for(var i = 0; i < 50; i++) {
+      $scope.data[i].x--;
+      $scope.data[i].y--;
+    }
   }
 });
 
@@ -181,12 +183,12 @@ app.directive('plottableScatter', function (){
           chartAttrs = makeChart(scope.data, chartContainer); 
 
           if (scope.regression) {
+            console.log('Regressing!')
             regression.remove();
             regression = makeRegressionLine(regressionType, scope.data, chartAttrs.xAxis, chartAttrs.yAxis, chartAttrs.xScale, chartAttrs.yScale, chartContainer);  
           }
-
         }
-      })
+      }, true)
     }
   };
 });
