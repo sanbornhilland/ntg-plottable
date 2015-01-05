@@ -56,14 +56,25 @@ plottableModule.factory('plottableService', function () {
     return convertPointArraysToObjects(arrayedRegressionData, scope.axisX, scope.axisY);  
   }
 
-  function makeChart(scope, chartContainer) {
+  var getNewPlot = function (xScale, yScale, type) {
+    var plots = {
+      scatter: new Plottable.Plot.Scatter(xScale, yScale),
+      line: new Plottable.Plot.Line(xScale, yScale),
+      verticalBar: new Plottable.Plot.VerticalBar(xScale, yScale)
+    }
+
+    return plots[type];
+  }
+
+  function makeChart(scope, chartContainer, type) {
     var xScale = new Plottable.Scale.Linear();
     var yScale = new Plottable.Scale.Linear();
 
     var xAxis = new Plottable.Axis.Numeric(xScale, "bottom");
     var yAxis = new Plottable.Axis.Numeric(yScale, "left");
 
-    var plot = new Plottable.Plot.Scatter(xScale, yScale);
+    // var plot = new Plottable.Plot.Scatter(xScale, yScale);
+    var plot = getNewPlot(xScale, yScale, type);
 
     plot.addDataset(scope.data);
     plot.project('x', dataAccessor(scope.axisX), xScale);
@@ -135,7 +146,7 @@ plottableModule.directive('plottableScatter', ['plottableService', function (pSe
           chart,
           regression;
 
-      chart = pService.makeChart(scope, chartContainer);
+      chart = pService.makeChart(scope, chartContainer, 'scatter');
       regression = regressionType && chart.drawRegression(regressionType);  
       
       scope.$watch('data', function (newVal, oldVal) {      
@@ -143,7 +154,7 @@ plottableModule.directive('plottableScatter', ['plottableService', function (pSe
           return
         } else {
           chart.renderedChart.remove();  
-          chart = pService.makeChart(scope, chartContainer); 
+          chart = pService.makeChart(scope, chartContainer, 'scatter'); 
 
           if (scope.regression) {
             regression.remove();

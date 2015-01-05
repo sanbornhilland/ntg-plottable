@@ -35,7 +35,6 @@ app.controller('MainCtrl', function ($scope) {
       }
 
       $scope.data = data;
-      console.log($scope.data);
     }())  
   }
 
