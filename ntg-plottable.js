@@ -1,6 +1,10 @@
 var plottableModule = angular.module('ntgPlottable', []);
 
-plottableModule.directive('plottableScatter', function (){
+plottableModule.factory('plottableService', function () {
+  /*
+   * Rename regression library to avoid name collisions
+   */
+  _regression = regression;
 
   /*
    * Return an accessor for a given property on some data point
@@ -46,11 +50,6 @@ plottableModule.directive('plottableScatter', function (){
 
     return pointObjects;
   }
-
-  /*
-   * Rename regression library to avoid name collisions
-   */
-  _regression = regression;
 
   function getRegressionData(regressionType, scope) {
     var arrayedRegressionData = _regression(regressionType, convertPointObjectsToArrays(scope.data, scope.axisX, scope.axisY)).points;
@@ -111,6 +110,15 @@ plottableModule.directive('plottableScatter', function (){
    return '<svg height="' + height + '" width="' + width + '"/>'; 
   }
 
+  var pService = {
+    makeChart: makeChart,
+    generateTemplate: generateTemplate
+  }
+
+  return pService;
+})
+
+plottableModule.directive('plottableScatter', ['plottableService', function (pService) {
   return {
     restrict: 'E',
     scope: {
@@ -120,14 +128,14 @@ plottableModule.directive('plottableScatter', function (){
       axisY: '@'
     },
     replace: true,
-    template: generateTemplate,
+    template: pService.generateTemplate,
     link: function postLink(scope, elem, attrs) {
       var chartContainer = elem[0],
           regressionType = scope.regression,
           chart,
           regression;
 
-      chart = makeChart(scope, chartContainer);
+      chart = pService.makeChart(scope, chartContainer);
       regression = regressionType && chart.drawRegression(regressionType);  
       
       scope.$watch('data', function (newVal, oldVal) {      
@@ -135,7 +143,7 @@ plottableModule.directive('plottableScatter', function (){
           return
         } else {
           chart.renderedChart.remove();  
-          chart = makeChart(scope, chartContainer); 
+          chart = pService.makeChart(scope, chartContainer); 
 
           if (scope.regression) {
             regression.remove();
@@ -145,4 +153,4 @@ plottableModule.directive('plottableScatter', function (){
       }, true)
     }
   };
-});
+}]);
