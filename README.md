@@ -29,8 +29,8 @@ Ex: `<plottable-scatter data="someData" axis-x"xData" axis-y"yData"></plottable-
 
 ####Data
 
-`data="someData"`
 Required
+`data="someData"`
 
 The value of someData should be the data you want to chart, represented as an array of point objects such as:
 
@@ -48,27 +48,28 @@ Note, the property names do no matter as long as they are consistent. You will s
 
 
 ####X and Y Data
-
-`axis-x="xVal"` and `axis-y="yVal"`
 Required
 
+`axis-x="xVal"` and `axis-y="yVal"`
+
+
 Specify which property of each point object will be used as the X values and which property will be used as the Y Values.
-
-
-####Dimensions
-
-`height="500"` and `width="500"`
-Optional
-
-Set the height and width of the chart. `height` defaults to 480 and `width` defaults to 640.
 
 
 ###Optional Attributes
 
 ####Regressions
-
-`regression="linear"`
 Optional for scatter charts
 
+`regression="linear"`
+
 Add a regression line to the chart by specifying which type of regression to display. Currently only supporting linear regression.
+
+####Dimensions
+Optional for all charts
+
+`height="500"` and `width="500"`
+
+
+Set the height and width of the chart. `height` defaults to 480 and `width` defaults to 640.
 
