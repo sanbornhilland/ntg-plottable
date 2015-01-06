@@ -68,7 +68,10 @@ plottableModule.factory('plottableService', function () {
     var plots = {
       scatter: new Plottable.Plot.Scatter(xScale, yScale),
       line: new Plottable.Plot.Line(xScale, yScale),
-      verticalBar: new Plottable.Plot.VerticalBar(xScale, yScale)
+      verticalBar: new Plottable.Plot.VerticalBar(xScale, yScale),
+      horizontalBar: new Plottable.Plot.HorizontalBar(xScale, yScale),
+      stackedArea: new Plottable.Plot.StackedArea(xScale, yScale),
+      stackedBar: new Plottable.Plot.StackedBar(xScale, yScale)
     }
 
     return plots[type];
@@ -158,7 +161,8 @@ plottableModule.factory('plottableService', function () {
 
 /*
  * A factory with a single method on it for creating new directive definition objects with
- * base properties used by all directives.
+ * base properties used by all directives. The Directive Definition function takes a string as an
+ * argument, indicating what time of chart to build.
  */
 plottableModule.factory('directiveDefinitionFactory', ['plottableService', function (plottableService) {
 
@@ -186,7 +190,7 @@ plottableModule.factory('directiveDefinitionFactory', ['plottableService', funct
   return dDFactory;
 }]);
 
-plottableModule.directive('plottableScatter', ['plottableService', 'directiveDefinitionFactory', function (pService, directiveDefinitionFactory) {
+plottableModule.directive('plottableScatter', ['directiveDefinitionFactory', function (directiveDefinitionFactory) {
 
   directiveDefinition = new directiveDefinitionFactory.DirectiveDefinition('scatter');
   directiveDefinition.scope.regression = '@';
@@ -194,10 +198,22 @@ plottableModule.directive('plottableScatter', ['plottableService', 'directiveDef
   return directiveDefinition;
 }]);
 
-plottableModule.directive('plottableLine', ['plottableService', 'directiveDefinitionFactory', function (pService, directiveDefinitionFactory) {
+plottableModule.directive('plottableLine', ['directiveDefinitionFactory', function (directiveDefinitionFactory) {
   return new directiveDefinitionFactory.DirectiveDefinition('line');
 }]);
 
-plottableModule.directive('plottableVerticalBar', ['plottableService', 'directiveDefinitionFactory', function (pService, directiveDefinitionFactory) {
+plottableModule.directive('plottableVerticalBar', ['directiveDefinitionFactory', function (directiveDefinitionFactory) {
   return new directiveDefinitionFactory.DirectiveDefinition('verticalBar');
+}]);
+
+plottableModule.directive('plottableHorizontalBar', ['directiveDefinitionFactory', function (directiveDefinitionFactory) {
+  return new directiveDefinitionFactory.DirectiveDefinition('horizontalBar');
+}]);
+
+plottableModule.directive('plottableStackedArea', ['directiveDefinitionFactory', function (directiveDefinitionFactory) {
+  return new directiveDefinitionFactory.DirectiveDefinition('stackedArea');
+}]);
+
+plottableModule.directive('plottableStackedBar', ['directiveDefinitionFactory', function (directiveDefinitionFactory) {
+  return new directiveDefinitionFactory.DirectiveDefinition('stackedBar');
 }]);
