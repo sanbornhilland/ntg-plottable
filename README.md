@@ -5,16 +5,27 @@
 
 Wraps the plottables.js library for use in Angular applications. 
 
+
 ###Currently Available Directives:
 
-1. `plottable-scatter`
+1. `<plottable-scatter>`
+2. `<plottable-line>`
+3. `<plottable-vertical-bar>`
+4. `<plottable-horizontal-bar>`
+5. `<plottable-stacked-area>`
+6. `<plottable-stacked-bar>`
+
+Note: many of these are still in development so though they are available directives, they might not behave as expected.
 
 
 ## API Reference
 
-###Scatter Plot
+###Example Usage
 
-Ex: `<plottable-scatter data="someData" regression="regressionType" axis-x"xData" axis-y"yData"></plottable-scatter>`
+Ex: `<plottable-scatter data="someData" axis-x"xData" axis-y"yData"></plottable-scatter>`
+
+
+###Standard Attributes
 
 ####Data
 
@@ -35,6 +46,7 @@ someData = [
 
 Note, the property names do no matter as long as they are consistent. You will specify which property to use on which axis using the `axis-x` and `axis-y` attributes.
 
+
 ####X and Y Data
 
 `axis-x="xVal"` and `axis-y="yVal"`
@@ -42,12 +54,6 @@ Required
 
 Specify which property of each point object will be used as the X values and which property will be used as the Y Values.
 
-####Regressions
-
-`regression="linear"`
-Optional
-
-Add a regression line to the chart by specifying which type of regression to display. Currently only supporting linear regression.
 
 ####Dimensions
 
@@ -57,4 +63,12 @@ Optional
 Set the height and width of the chart. `height` defaults to 480 and `width` defaults to 640.
 
 
+###Optional Attributes
+
+####Regressions
+
+`regression="linear"`
+Optional for scatter charts
+
+Add a regression line to the chart by specifying which type of regression to display. Currently only supporting linear regression.
 
