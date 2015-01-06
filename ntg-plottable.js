@@ -51,11 +51,19 @@ plottableModule.factory('plottableService', function () {
     return pointObjects;
   }
 
+  /* 
+   * Regression.js requires points to be stored as arrays so we must convert 
+   * points as objects to arrays to calculate the regression and then back to
+   * objects to be handled by plottable.js
+   */
   function getRegressionData(regressionType, scope) {
     var arrayedRegressionData = _regression(regressionType, convertPointObjectsToArrays(scope.data, scope.axisX, scope.axisY)).points;
     return convertPointArraysToObjects(arrayedRegressionData, scope.axisX, scope.axisY);  
   }
 
+  /*
+   * Return a new Plottable Plot of the correct type
+   */
   var getNewPlot = function (xScale, yScale, type) {
     var plots = {
       scatter: new Plottable.Plot.Scatter(xScale, yScale),
@@ -73,7 +81,6 @@ plottableModule.factory('plottableService', function () {
     var xAxis = new Plottable.Axis.Numeric(xScale, "bottom");
     var yAxis = new Plottable.Axis.Numeric(yScale, "left");
 
-    // var plot = new Plottable.Plot.Scatter(xScale, yScale);
     var plot = getNewPlot(xScale, yScale, type);
 
     plot.addDataset(scope.data);
@@ -112,41 +119,16 @@ plottableModule.factory('plottableService', function () {
       renderedChart: chart,
       drawRegression: regressionFunction
     }
-  }
+  };
 
-  function generateTemplate(tElement, tAttrs) {
-   var height = tAttrs.height || 480;
-   var width  = tAttrs.width  || 640;
-   
-   return '<svg height="' + height + '" width="' + width + '"/>'; 
-  }
-
-  var pService = {
-    makeChart: makeChart,
-    generateTemplate: generateTemplate
-  }
-
-  return pService;
-})
-
-plottableModule.directive('plottableScatter', ['plottableService', function (pService) {
-  return {
-    restrict: 'E',
-    scope: {
-      data: '=',
-      regression: '@',
-      axisX: '@',
-      axisY: '@'
-    },
-    replace: true,
-    template: pService.generateTemplate,
-    link: function postLink(scope, elem, attrs) {
+  function postLink(type) {
+    return function (scope, elem, attrs) {
       var chartContainer = elem[0],
           regressionType = scope.regression,
           chart,
           regression;
 
-      chart = pService.makeChart(scope, chartContainer, 'scatter');
+      chart = pService.makeChart(scope, chartContainer, type);
       regression = regressionType && chart.drawRegression(regressionType);  
       
       scope.$watch('data', function (newVal, oldVal) {      
@@ -154,7 +136,7 @@ plottableModule.directive('plottableScatter', ['plottableService', function (pSe
           return
         } else {
           chart.renderedChart.remove();  
-          chart = pService.makeChart(scope, chartContainer, 'scatter'); 
+          chart = pService.makeChart(scope, chartContainer, type); 
 
           if (scope.regression) {
             regression.remove();
@@ -164,4 +146,58 @@ plottableModule.directive('plottableScatter', ['plottableService', function (pSe
       }, true)
     }
   };
+
+  var pService = {
+    makeChart: makeChart,
+    postLink: postLink
+  };
+
+  return pService;
+});
+
+
+/*
+ * A factory with a single method on it for creating new directive definition objects with
+ * base properties used by all directives.
+ */
+plottableModule.factory('directiveDefinitionFactory', ['plottableService', function (plottableService) {
+
+  function generateTemplate(tElement, tAttrs) {
+   var height = tAttrs.height || 480;
+   var width  = tAttrs.width  || 640;
+   
+   return '<svg height="' + height + '" width="' + width + '"/>'; 
+  }
+
+  var dDFactory = {
+    DirectiveDefinition: function (type) {
+      this.restrict = 'E';
+      this.replace = true;
+      this.template = generateTemplate;
+      this.scope = {
+        data: '=',
+        axisX: '@',
+        axisY: '@'
+      }
+      this.link = plottableService.postLink(type);
+    }
+  };
+
+  return dDFactory;
+}]);
+
+plottableModule.directive('plottableScatter', ['plottableService', 'directiveDefinitionFactory', function (pService, directiveDefinitionFactory) {
+
+  directiveDefinition = new directiveDefinitionFactory.DirectiveDefinition('scatter');
+  directiveDefinition.scope.regression = '@';
+
+  return directiveDefinition;
+}]);
+
+plottableModule.directive('plottableLine', ['plottableService', 'directiveDefinitionFactory', function (pService, directiveDefinitionFactory) {
+  return new directiveDefinitionFactory.DirectiveDefinition('line');
+}]);
+
+plottableModule.directive('plottableVerticalBar', ['plottableService', 'directiveDefinitionFactory', function (pService, directiveDefinitionFactory) {
+  return new directiveDefinitionFactory.DirectiveDefinition('verticalBar');
 }]);
