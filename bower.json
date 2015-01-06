@@ -1,10 +1,20 @@
 {
-  "name": "plottable_directive",
-  "version": "0.0.0",
+  "name": "ntg-plottable",
+  "version": "0.1.0",
   "authors": [
     "Sanborn <sanbornh@rogers.com>"
   ],
   "description": "Angular directive wrapper for Plottable.js",
+  "keywords" : [
+    "charting",
+    "plotting",
+    "plottable.js",
+    "plottable",
+    "chart"
+  ],
+  "main": [
+    "ntg-plottable.js"
+  ],
   "license": "MIT",
   "ignore": [
     "**/.*",
