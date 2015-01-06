@@ -6,7 +6,7 @@ app.controller('MainCtrl', function ($scope) {
   $scope.data = (function makeData() {
     var data = [];
 
-    for(i = 1; i <= 100; i++) {
+    for(i = 1; i <= 200; i++) {
       var point = {};
 
       point.purple = Math.floor(Math.random() * 50);
@@ -25,11 +25,11 @@ app.controller('MainCtrl', function ($scope) {
     (function makeData() {
       var data = [];
 
-      for(i = 1; i <= 100; i++) {
+      for(i = 1; i <= 200; i++) {
         var point = {};
 
         point.purple = Math.floor(Math.random() * 50);
-      point.blue = Math.floor(Math.random() * 100);
+        point.blue = Math.floor(Math.random() * 100);
 
         data.push(point);
       }
