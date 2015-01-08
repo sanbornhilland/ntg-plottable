@@ -80,15 +80,18 @@ plottableModule.factory('plottableService', function () {
   function makeChart(scope, chartContainer, type) {
     var xScale = new Plottable.Scale.Linear();
     var yScale = new Plottable.Scale.Linear();
+    var colorScale = new Plottable.Scale.Color();
 
     var xAxis = new Plottable.Axis.Numeric(xScale, "bottom");
     var yAxis = new Plottable.Axis.Numeric(yScale, "left");
 
+
     var plot = getNewPlot(xScale, yScale, type);
 
-    plot.addDataset(scope.data);
-    plot.project('x', dataAccessor(scope.axisX), xScale);
-    plot.project('y', dataAccessor(scope.axisY), yScale);
+    plot.addDataset(scope.data)
+        .project('x', dataAccessor(scope.axisX), xScale)
+        .project('y', dataAccessor(scope.axisY), yScale)
+        .project('fill', function () {return 'bottom';}, colorScale);
 
     var chart = new Plottable.Component.Table([
         [yAxis, plot],
@@ -105,9 +108,10 @@ plottableModule.factory('plottableService', function () {
       var regressionData = getRegressionData(regressionType, scope);
       var plot = new Plottable.Plot.Line(xScale, yScale);
 
-      plot.addDataset(regressionData);
-      plot.project('x', dataAccessor(scope.axisX), xScale);
-      plot.project('y', dataAccessor(scope.axisY), yScale);
+      plot.addDataset(regressionData)
+          .project('x', dataAccessor(scope.axisX), xScale)
+          .project('y', dataAccessor(scope.axisY), yScale)
+          .project('stroke', function () {return 'left';}, colorScale);
 
       var regressionChart = new Plottable.Component.Table([
           [yAxis, plot],
