@@ -80,7 +80,7 @@ plottableModule.factory('plottableService', function () {
   }
 
   /*
-   * Return an object with a new x and y scale.
+   * Returns an object with a new x and y scale.
    */
   function makeLinearScales() {
     var scales = {
@@ -92,7 +92,7 @@ plottableModule.factory('plottableService', function () {
   }
 
   /*
-   * Return an object with a new x and y axis.
+   * Returns an object with a new x and y axis.
    */
   function makeAxes(scales) {
     var axes = {
@@ -103,44 +103,57 @@ plottableModule.factory('plottableService', function () {
     return axes;
   }
 
+  /*
+   * Returns a new table with either or both of a title and subtitle
+   */
+  function makeTitleTable(title, subtitle) {
+    var tableArray = [],
+        titleTable;
+
+    if (title) {
+      var titleLabel = new Plottable.Component.TitleLabel(title);
+      tableArray.push([titleLabel]);
+    }
+
+    if (subtitle) {
+      var subtitleLabel = new Plottable.Component.Label(subtitle);
+      tableArray.push([subtitleLabel]);
+    }
+
+    titleTable = new Plottable.Component.Table(tableArray);
+    titleTable.xAlign("center");
+
+    return titleTable;
+  }
+
   function makeChart(scope, chartContainer, type) {
     var scales = makeLinearScales(),
         axes = makeAxes(scales),
         colorScale = new Plottable.Scale.Color(),
         plot = getNewPlot(scales.x, scales.y, type),
-        title,
-        subtitle;
-
-    if (scope.title) {
-      title = new Plottable.Component.TitleLabel(scope.title);
-    }
-
-    if (scope.subtitle) {
-      subtitle = new Plottable.Component.Label(scope.subtitle);
-    }
-
-    var titleTable = new Plottable.Component.Table([
-                      [title],
-                      [subtitle]
-                    ]);
-    titleTable.xAlign("center");
-
-
+        chart,
+        dataTable,
+        titleTable;
 
     plot.addDataset(scope.data)
         .project('x', dataAccessor(scope.axisX), scales.x)
         .project('y', dataAccessor(scope.axisY), scales.y)
         .project('fill', function () {return 'bottom';}, colorScale);
 
-    var dataTable = new Plottable.Component.Table([
-        [axes.y, plot],
-        [null, axes.x]
-      ]);
+    dataTable = new Plottable.Component.Table([
+                    [axes.y, plot],
+                    [null, axes.x]
+                  ]);
 
-    var chart = new Plottable.Component.Table([
+    if (scope.title || scope.subtitle) {
+      titleTable = makeTitleTable(scope.title, scope.subtitle);
+      chart = new Plottable.Component.Table([
                 [titleTable],
                 [dataTable]
               ])
+    } else {
+      chart = dataTable;
+    }
 
     chart.renderTo(chartContainer);
 
