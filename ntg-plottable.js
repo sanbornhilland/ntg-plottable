@@ -1,3 +1,5 @@
+'use strict'
+
 var plottableModule = angular.module('ntgPlottable', []);
 
 plottableModule.factory('plottableService', function () {
@@ -22,7 +24,7 @@ plottableModule.factory('plottableService', function () {
   function convertPointObjectsToArrays(data, x, y) {
     var pointArrays = []
 
-    for (i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
       var pointObject = data[i];
       var pointArray = new Array(pointObject[x], pointObject[y]);
 
@@ -39,7 +41,7 @@ plottableModule.factory('plottableService', function () {
   function convertPointArraysToObjects(data, x, y) {
     var pointObjects = [];
 
-    for(i = 0; i < data.length; i++) {
+    for(var i = 0; i < data.length; i++) {
       var point = {};
 
       point[x] = data[i][0];
