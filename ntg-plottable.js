@@ -107,17 +107,40 @@ plottableModule.factory('plottableService', function () {
     var scales = makeLinearScales(),
         axes = makeAxes(scales),
         colorScale = new Plottable.Scale.Color(),
-        plot = getNewPlot(scales.x, scales.y, type);
+        plot = getNewPlot(scales.x, scales.y, type),
+        title,
+        subtitle;
+
+    if (scope.title) {
+      title = new Plottable.Component.TitleLabel(scope.title);
+    }
+
+    if (scope.subtitle) {
+      subtitle = new Plottable.Component.Label(scope.subtitle);
+    }
+
+    var titleTable = new Plottable.Component.Table([
+                      [title],
+                      [subtitle]
+                    ]);
+    titleTable.xAlign("center");
+
+
 
     plot.addDataset(scope.data)
         .project('x', dataAccessor(scope.axisX), scales.x)
         .project('y', dataAccessor(scope.axisY), scales.y)
         .project('fill', function () {return 'bottom';}, colorScale);
 
-    var chart = new Plottable.Component.Table([
+    var dataTable = new Plottable.Component.Table([
         [axes.y, plot],
         [null, axes.x]
       ]);
+
+    var chart = new Plottable.Component.Table([
+                [titleTable],
+                [dataTable]
+              ])
 
     chart.renderTo(chartContainer);
 
@@ -159,6 +182,9 @@ plottableModule.factory('plottableService', function () {
       chart = pService.makeChart(scope, chartContainer, type);
       regression = regressionType && chart.drawRegression(regressionType);  
       
+      /*
+       * Watch the data for changes and update the chart if any data changes.
+       */
       scope.$watch('data', function (newVal, oldVal) {      
         if (newVal === oldVal) { // Block against initial firing on registration
           return
