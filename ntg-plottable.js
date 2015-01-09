@@ -82,7 +82,7 @@ plottableModule.factory('plottableService', function () {
   /*
    * Return an object with a new x and y scale.
    */
-  function getLinearScales() {
+  function makeLinearScales() {
     var scales = {
       x: new Plottable.Scale.Linear(),
       y: new Plottable.Scale.Linear()
@@ -91,15 +91,23 @@ plottableModule.factory('plottableService', function () {
     return scales;
   }
 
+  /*
+   * Return an object with a new x and y axis.
+   */
+  function makeAxes(scales) {
+    var axes = {
+      x: new Plottable.Axis.Numeric(scales.x, "bottom"),
+      y: new Plottable.Axis.Numeric(scales.y, "left")
+    }
+
+    return axes;
+  }
+
   function makeChart(scope, chartContainer, type) {
-    var scales = getLinearScales();
-    var colorScale = new Plottable.Scale.Color();
-
-    var xAxis = new Plottable.Axis.Numeric(scales.x, "bottom");
-    var yAxis = new Plottable.Axis.Numeric(scales.y, "left");
-
-
-    var plot = getNewPlot(scales.x, scales.y, type);
+    var scales = makeLinearScales(),
+        axes = makeAxes(scales),
+        colorScale = new Plottable.Scale.Color(),
+        plot = getNewPlot(scales.x, scales.y, type);
 
     plot.addDataset(scope.data)
         .project('x', dataAccessor(scope.axisX), scales.x)
@@ -107,8 +115,8 @@ plottableModule.factory('plottableService', function () {
         .project('fill', function () {return 'bottom';}, colorScale);
 
     var chart = new Plottable.Component.Table([
-        [yAxis, plot],
-        [null, xAxis]
+        [axes.y, plot],
+        [null, axes.x]
       ]);
 
     chart.renderTo(chartContainer);
@@ -118,8 +126,8 @@ plottableModule.factory('plottableService', function () {
      * which will be returned and called later if a regression was specified
      */
     function regressionFunction(regressionType) {
-      var regressionData = getRegressionData(regressionType, scope);
-      var plot = new Plottable.Plot.Line(scales.x, scales.y);
+      var regressionData = getRegressionData(regressionType, scope),
+          plot = new Plottable.Plot.Line(scales.x, scales.y);
 
       plot.addDataset(regressionData)
           .project('x', dataAccessor(scope.axisX), scales.x)
@@ -127,8 +135,8 @@ plottableModule.factory('plottableService', function () {
           .project('stroke', function () {return 'left';}, colorScale);
 
       var regressionChart = new Plottable.Component.Table([
-          [yAxis, plot],
-          [null, xAxis]
+          [axes.y, plot],
+          [null, axes.x]
         ])
 
       regressionChart.renderTo(chartContainer);
