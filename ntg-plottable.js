@@ -6,7 +6,7 @@ plottableModule.factory('plottableService', function () {
   /*
    * Rename regression library to avoid name collisions
    */
-  _regression = regression;
+  var _regression = regression;
 
   /*
    * Return an accessor for a given property on some data point
@@ -197,8 +197,8 @@ plottableModule.factory('directiveDefinitionFactory', ['plottableService', funct
 
 plottableModule.directive('plottableScatter', ['directiveDefinitionFactory', function (directiveDefinitionFactory) {
 
-  directiveDefinition = new directiveDefinitionFactory.DirectiveDefinition('scatter');
-  directiveDefinition.scope.regression = '@';
+  var directiveDefinition = new directiveDefinitionFactory.DirectiveDefinition('scatter');
+      directiveDefinition.scope.regression = '@';
 
   return directiveDefinition;
 }]);
