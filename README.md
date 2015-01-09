@@ -5,6 +5,12 @@
 
 Wraps the plottables.js library for use in Angular applications. 
 
+###Installation
+
+1. run `bower install ntg-plottable`
+2. Include ntg-plottable.js, d3.js, regressions.js, plottable.js and plottable.css in your index file
+3. Inject the `ntgPlottable` module into your Angular application
+
 
 ###Currently Available Directives:
 
@@ -31,7 +37,7 @@ Ex: `<plottable-scatter data="someData" axis-x"xData" axis-y"yData"></plottable-
 
 Required
 `data="someData"`
-
+}
 The value of someData should be the data you want to chart, represented as an array of point objects such as:
 
 ```

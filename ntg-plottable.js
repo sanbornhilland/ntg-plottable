@@ -164,7 +164,6 @@ plottableModule.factory('plottableService', function () {
   return pService;
 });
 
-
 /*
  * A factory with a single method on it for creating new directive definition objects with
  * base properties used by all directives. The Directive Definition function takes a string as an
