@@ -79,3 +79,10 @@ Optional for all charts
 
 Set the height and width of the chart. `height` defaults to 480 and `width` defaults to 640.
 
+####Titles
+Optional for all charts
+
+`title="Super Great Chart"` and `subtitle="Seriously It's a Great Chart"`
+
+Added both or either of a title and subtitle to your chart.
+
