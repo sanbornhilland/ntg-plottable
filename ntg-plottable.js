@@ -79,20 +79,31 @@ plottableModule.factory('plottableService', function () {
     return plots[type];
   }
 
+  /*
+   * Return an object with a new x and y scale.
+   */
+  function getLinearScales() {
+    var scales = {
+      x: new Plottable.Scale.Linear(),
+      y: new Plottable.Scale.Linear()
+    }
+
+    return scales;
+  }
+
   function makeChart(scope, chartContainer, type) {
-    var xScale = new Plottable.Scale.Linear();
-    var yScale = new Plottable.Scale.Linear();
+    var scales = getLinearScales();
     var colorScale = new Plottable.Scale.Color();
 
-    var xAxis = new Plottable.Axis.Numeric(xScale, "bottom");
-    var yAxis = new Plottable.Axis.Numeric(yScale, "left");
+    var xAxis = new Plottable.Axis.Numeric(scales.x, "bottom");
+    var yAxis = new Plottable.Axis.Numeric(scales.y, "left");
 
 
-    var plot = getNewPlot(xScale, yScale, type);
+    var plot = getNewPlot(scales.x, scales.y, type);
 
     plot.addDataset(scope.data)
-        .project('x', dataAccessor(scope.axisX), xScale)
-        .project('y', dataAccessor(scope.axisY), yScale)
+        .project('x', dataAccessor(scope.axisX), scales.x)
+        .project('y', dataAccessor(scope.axisY), scales.y)
         .project('fill', function () {return 'bottom';}, colorScale);
 
     var chart = new Plottable.Component.Table([
@@ -108,11 +119,11 @@ plottableModule.factory('plottableService', function () {
      */
     function regressionFunction(regressionType) {
       var regressionData = getRegressionData(regressionType, scope);
-      var plot = new Plottable.Plot.Line(xScale, yScale);
+      var plot = new Plottable.Plot.Line(scales.x, scales.y);
 
       plot.addDataset(regressionData)
-          .project('x', dataAccessor(scope.axisX), xScale)
-          .project('y', dataAccessor(scope.axisY), yScale)
+          .project('x', dataAccessor(scope.axisX), scales.x)
+          .project('y', dataAccessor(scope.axisY), scales.y)
           .project('stroke', function () {return 'left';}, colorScale);
 
       var regressionChart = new Plottable.Component.Table([
@@ -186,7 +197,9 @@ plottableModule.factory('directiveDefinitionFactory', ['plottableService', funct
       this.scope = {
         data: '=',
         axisX: '@',
-        axisY: '@'
+        axisY: '@',
+        title: '@',
+        subtitle: '@'
       }
       this.link = plottableService.postLink(type);
     }
